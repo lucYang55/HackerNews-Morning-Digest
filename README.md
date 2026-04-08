@@ -13,29 +13,29 @@ A local RAG pipeline that fetches the top stories from HackerNews every morning 
 4. Queries the index with a structured prompt using `dolphin-llama3:8b`
 5. Outputs a morning digest to your terminal 
 
-## Prerequisites
+Prerequisites
 
 You need three things installed before cloning this project.
 
-### 1. Python 3.10+
+1. Python 3.10+
 
-### 2. Ollama
+2. Ollama
 Ollama runs LLMs locally. Download it from [ollama.com](https://ollama.com) and install it, then start the server:
 Leave this running in a separate terminal, or set it up as a background service (it installs one automatically on macOS and Linux).
 
-### 3. The two required models
+3. The two required models
 Pull both models — this only needs to be done once:
 
-# The LLM that writes the report
+The LLM that writes the report
 Ollama pull dolphin-llama3:8b
 
-# The embedding model for the vector index
+The embedding model for the vector index
 ollama pull nomic-embed-text
 
-# Use a virtual environment:
+Use a virtual environment:
 python3 -m venv venv
 
-## To run daily on Mac, use CRON 
+To run daily on Mac, use CRON 
 crontab -e
 
 Match the time you want the new letter to execute 
