@@ -1,42 +1,106 @@
-# HackerNews-Morning-Digest
-Using local Ollama models to create daily news reports based on HackerNews API. 
+# HackerNews Morning Digest (Local RAG + Ollama)
+<img width="1684" height="584" alt="Screenshot 2026-04-08 at 11 17 29 AM" src="https://github.com/user-attachments/assets/6f223475-d350-49e5-87f2-59dbedf0ad2a" />
 
-# HN Morning Digest
+A fully local Retrieval-Augmented Generation (RAG) pipeline that automatically generates a structured morning news digest from Hacker News using locally hosted LLMs via Ollama. This project is designed to give you a concise, engineer-focused overview of the most relevant Hacker News stories each day—without relying on external APIs or paid LLM services.
 
-A local RAG pipeline that fetches the top stories from HackerNews every morning and generates a structured digest using a locally-running LLM.
+Overview
 
-## How it works
+The system runs as a daily job that:
 
-1. Fetches the top stories from the HackerNews API
-2. Converts each story into a `llama_index` `Document` with (title, score, comments, author)
-3. Embeds all documents into an in-memory vector store using `nomic-embed-text` via Ollama
-4. Queries the index with a structured prompt using `dolphin-llama3:8b`
-5. Outputs a morning digest to your terminal 
+- Pulls top stories from the Hacker News API
+- Processes and embeds them into a vector index
+- Uses a local LLM to synthesize insights
+- Outputs a readable morning digest directly to your terminal or a log file
 
+# Architecture
+
+This project follows a simple RAG pipeline:
+
+1. Data Ingestion
+
+Fetches top stories from the Hacker News API, including:
+
+Title
+Score (upvotes)
+Number of comments
+Author
+
+Each story is converted into a structured Document object using llama_index.
+
+1. Embedding + Indexing
+Documents are embedded using the nomic-embed-text model via Ollama
+Embeddings are stored in an in-memory vector store
+Enables semantic retrieval over the top stories
+
+2. Query + Generation
+A structured prompt is sent to a local LLM (dolphin-llama3:8b)
+The model retrieves relevant stories from the index
+It generates a clean, summarized morning digest
+
+3. Output
+The final digest is printed to the terminal
+Optionally redirected to a file for logging or later reading
+
+Features
+100% local execution (no external LLM APIs)
+Daily automated news generation
+Structured, developer-focused summaries
+Lightweight and fast with in-memory indexing
+Easily extensible (e.g., add filtering, ranking, or personalization)
 Prerequisites
 
-You need three things installed before cloning this project.
+# Make sure the following are installed before running the project:
 
-1. Python 3.10+
+1. Python
+  Python 3.10 or higher
 
 2. Ollama
-Ollama runs LLMs locally. Download it from [ollama.com](https://ollama.com) and install it, then start the server:
-Leave this running in a separate terminal, or set it up as a background service (it installs one automatically on macOS and Linux).
+  Ollama is used to run both the LLM and embedding models locally.
+  Download and install from:
+  https://ollama.com
 
-3. The two required models
-Pull both models — this only needs to be done once:
+# Start the Ollama server (if not already running):
 
-The LLM that writes the report
-Ollama pull dolphin-llama3:8b
+Pull the required models (only needed once):
 
-The embedding model for the vector index
-ollama pull nomic-embed-text
+LLM (for generating the digest):
 
-Use a virtual environment:
-python3 -m venv venv
+- ollama pull dolphin-llama3:8b
 
-To run daily on Mac, use CRON 
-crontab -e
+Embedding model (for vector search):
 
-Match the time you want the new letter to execute 
-* * * * cd /your/file/path/ && /path/to/executable rag.py >> /path/to/save/output/ 2>&1
+- ollama pull nomic-embed-text
+
+# Setup
+
+Create and activate a virtual environment:
+  python3 -m venv venv
+  source venv/bin/activate
+
+Install dependencies (example):
+  pip install -r requirements.txt
+
+Run manually:
+  python rag.py
+
+This will:
+  Fetch the latest Hacker News stories
+  Build the vector index
+  Generate and print the digest
+  Automating with Cron (macOS/Linux)
+
+To run the digest automatically every morning, use cron.
+
+Open your crontab:
+
+- crontab -e
+
+Add a scheduled job (example: run every day at 9:00 AM):
+
+0 9 * * * cd /your/project/path && /path/to/python rag.py >> /path/to/output.log 2>&1
+
+Breakdown:
+  0 9 * * * → runs at 9:00 AM daily
+  cd → ensures correct working directory
+  >> output.log → appends output to a log file
+  2>&1 → captures errors along with output
